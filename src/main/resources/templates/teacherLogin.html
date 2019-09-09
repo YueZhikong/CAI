@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>老师登录</title>
+    <script src="js/jquery/2.0.0/jquery.min.js"></script>
+    <link href="css/bootstrap/3.3.6/bootstrap.min.css" rel="stylesheet">
+    <script src="js/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <script src="js/vue/2.5.16/vue.min.js"></script>
+    <script src="js/axios/0.17.1/axios.min.js"></script>
+    <script src="js/moment/2.22.2/moment.js"></script>
+</head>
+<script>
+    function checkEmpty(value,text){
+
+        if(null==value || value.length==0){
+            alert(text+ "不能为空");
+            return false;
+        }
+        return true;
+    }
+    $(function(){
+        var data4Vue = {
+            uri:'teacherLogin',
+            teachers: [],
+            teacher: { id:"", name: '',password:""}
+        };
+
+        //ViewModel
+        var vue = new Vue({
+            el: '#workingArea',
+            data: data4Vue,
+            mounted:function(){ //mounted　表示这个 Vue 对象加载成功了
+                this.listTeacher();
+            },
+            methods: {
+                listTeacher:function(){
+                    var url =  this.uri+"/listTeacher";
+                    axios.get(url).then(function(response) {
+                        vue.teachers = response.data   ;
+                    });
+                },
+                login:function () {
+                    var url = this.uri;
+                    axios.post(url,this.teacher).then(function (response) {
+                        var result = response.data;
+                        if(result.code==0){
+                            location.href="teacherHome";
+                        }
+                        else{
+                            alert(result.message)
+                        }
+                    })
+                }
+            }
+        });
+    });
+</script>
+<body>
+<div id="workingArea">
+    <div class="modal show" id="loginModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close">&times;</button>
+                    <h1 class="text-center text-primary">请登录</h1>
+                </div>
+                <div class="modal-body">
+                    <form class="form col-md-12 center-block" id="loginForm">
+                        <div class="form-group-lg" id="accountDiv">
+                            <label class="sr-only" for="inputAccount">账号</label>
+                            <div class="input-group">
+                                <div class="input-group-addon"><span class="glyphicon glyphicon-user"
+                                                                     aria-hidden="true"></span></div>
+                                <input class="form-control" id="inputAccount" name="accountNo" type="text"
+                                       placeholder="账号"   v-model="teacher.name" autofocus>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="form-group-lg" id="pwdDiv">
+                            <label class="sr-only" for="inputPassword">密码</label>
+                            <div class="input-group">
+                                <div class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></div>
+                                <input class="form-control" id="inputPassword" name="pwd" type="password"
+                                       placeholder="密码" v-model="teacher.password">
+                            </div>
+                        </div>
+                        <br>
+                        <div align="center">
+                            <button class="btn btn-primary btn-lg" id="btn_login" type="button" @click="login">登录</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

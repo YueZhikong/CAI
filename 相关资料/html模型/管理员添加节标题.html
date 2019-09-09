@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <script src="js/jquery/2.0.0/jquery.min.js"></script>
+    <link href="css/bootstrap/3.3.6/bootstrap.min.css" rel="stylesheet">
+    <script src="js/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <script src="js/vue/2.5.16/vue.min.js"></script>
+    <script src="js/axios/0.17.1/axios.min.js"></script>
+    <script src="js/moment/2.22.2/moment.js"></script> <!-- vue.js 格式化日期用的 -->
+	<style type="text/css">
+	#left{width:20%;float:left;}
+	#right{width:80%;float:left;}
+	</style>
+</head>
+<body>
+<div id="left">
+	<h4>请在下表中选择章标题：</h4>
+	<select v-model="selected" size="15">
+		<option disabled value="">请选择</option>
+	</select>
+</div>
+
+<div id="right">
+	<div>
+		<h4>节标题：</h4>
+		<input v-model="input" placeholder="输入数据">
+		<button>添加</button>
+	</div>
+	<div>
+		<select v-model="selected" size="15">
+			<option disabled value="">请选择</option>
+		</select>
+		<br>
+		<button>删除选中节标题</button>
+	</div>
+	
+</div>
+</body>
+</html>

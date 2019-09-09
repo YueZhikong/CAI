@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('学生主页')" ></head>
+<body>
+<div th:replace="include/studentNavigator::html" ></div>
+<style type="text/css">
+    #left {
+        width: 20%;
+        float: left;
+    }
+
+    #middle {
+        width: 20%;
+        float: left;
+    }
+
+    #right {
+        width: 60%;
+        float: left;
+    }
+
+    .cardBox {
+        width: 200px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        text-align: center;
+        float: left;
+        margin-right: 10px;
+        padding: 5px;
+        padding-top: 15px;
+    }
+
+    .headerBox {
+        color: #fff;
+        padding: 10px;
+        font-size: 15px;
+        height: 60px;
+    }
+
+    .bodyBox {
+        padding: 10px;
+    }
+
+    .bodyBox p {
+        margin-left: 5px;
+    }
+</style>
+<script>
+    function checkEmpty(value, text) {
+
+        if (null == value || value.length == 0) {
+            alert(text + "不能为空");
+            return false;
+        }
+        return true;
+    }
+
+    $(function () {
+        var data4Vue = {
+            uri: 'Online',
+            courses:[],
+            course:{id:''},
+            online:[],
+            onlines:[],
+            chapters:[],
+            chapter:{id:''},
+            knowledgepoints:[],
+            knowledgepoint:{id:''},
+            videos:[]
+        };
+
+        //ViewModel
+        var vue = new Vue({
+            el: '#workingArea',
+            data: data4Vue,
+            mounted: function () { //mounted　表示这个 Vue 对象加载成功了
+                this.listChapter();
+            },
+            methods: {
+                listChapter: function () {
+                    var url = this.uri + "/listChapter";
+                    axios.get(url).then(function (response) {
+                        vue.chapters = response.data;
+                    });
+                },
+                listKnowledgepoint: function () {
+                    var url = this.uri + "/listKnowledgepoint/" + this.chapter.id;
+                    axios.get(url).then(function (response) {
+                        vue.knowledgepoints = response.data;
+                    });
+                },
+                listVideo: function () {
+                    var url = this.uri + "/listVideo/"+this.knowledgepoint.id;
+                    axios.get(url).then(function (response) {
+                        vue.videos = response.data;
+                    });
+                }
+            }
+        });
+    });
+</script>
+<div id="workingArea">
+    <h1>组卷</h1>
+    <div id="left">
+        <select v-model="chapter.id" size="5" @change="listKnowledgepoint">
+            <option disabled value="">请选择章</option>
+            <option v-for="chapter in chapters" :value="chapter.id">{{chapter.name}}</option>
+        </select>
+    </div>
+    <div id="middle">
+        <select v-model="knowledgepoint.id" size="5" @change="listVideo">
+            <option disabled value="">请选择节</option>
+            <option v-for="knowledgepoint in knowledgepoints" :value="knowledgepoint.id">{{knowledgepoint.point}}
+            </option>
+        </select>
+    </div>
+    <div id="right">
+        <div class="cardBox" v-for="video in videos">
+            <div class="headerBox" style="background-color: #5BC0DE;">
+                <p>{{video.online.name}}</p>
+            </div>
+            <div class="bodyBox">
+                <p>{{video.teacher.name}}</p>
+                <a :href="'viewOnline?videoID='+ video.id" target="_blank">进入</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>

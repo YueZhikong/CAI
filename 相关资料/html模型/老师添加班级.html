@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <script src="js/jquery/2.0.0/jquery.min.js"></script>
+    <link href="css/bootstrap/3.3.6/bootstrap.min.css" rel="stylesheet">
+    <script src="js/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <script src="js/vue/2.5.16/vue.min.js"></script>
+    <script src="js/axios/0.17.1/axios.min.js"></script>
+    <script src="js/moment/2.22.2/moment.js"></script> <!-- vue.js 格式化日期用的 -->
+</head>
+<body>		
+<div class="panel panel-warning addDiv">
+        <div class="panel-heading">新增产品</div>
+        <div class="panel-body">
+            <table class="addTable">
+                <tr>
+                    <td>学期</td>
+                    <td><input  @keyup.enter="add" v-model.trim="bean.term" type="text" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td>学院</td>
+                    <td><input  @keyup.enter="add" v-model.trim="bean.college" type="text" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td>班级名称</td>
+                    <td><input  @keyup.enter="add" v-model.trim="bean.name" type="text" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td>课程名称</td>
+                    <td><input  @keyup.enter="add" v-model.trim="bean.subject" type="text" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td>上课地点</td>
+                    <td><input  @keyup.enter="add" v-model.trim="bean.place" type="text" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td>上课时间</td>
+                    <td><input  @keyup.enter="add" v-model.trim="bean.time" type="text" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td>节数</td>
+                    <td><input  @keyup.enter="add" v-model.trim="bean.lesson" type="text" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td>机房</td>
+                    <td><input  @keyup.enter="add" v-model.trim="bean.cs_room" type="text" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td>实验时间</td>
+                    <td><input  @keyup.enter="add" v-model.trim="bean.exp_time" type="text" class="form-control"></td>
+                </tr>
+
+                <tr class="submitTR">
+                    <td colspan="2" align="center">
+                        <a href="#nowhere"  @click="add" class="btn btn-success">提交</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="listDataTableDiv">
+        <table class="table table-striped table-bordered table-hover table-condensed">
+            <thead>
+            <tr class="success">
+                <th>ID</th>
+                <th>学期</th>
+                <th>学院</th>
+                <th>班级名</th>
+                <th>课程</th>
+                <th>上课地点</th>
+                <th>上课时间</th>
+                <th>节数</th>
+                <th>机房</th>
+                <th>实验时间</th>
+				<th>编辑</th>
+                <th>删除</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="bean in beans ">
+                <td>{{bean.id}}</td>
+                <td>{{bean.term}}</td>
+                <td>{{bean.college}}</td>
+                <td>{{bean.name}}</td>
+                <td>{{bean.subject}}</td>
+                <td>{{bean.place}}</td>
+                <td>{{bean.time}}</td>
+                <td>{{bean.lesson}}</td>
+                <td>{{bean.cs_room}}</td>
+                <td>{{bean.exp_time}}</td>
+				<td>编辑</td>
+                <td>
+                    <a href="#nowhere"  @click="deleteBean(bean.id)"><span class="   glyphicon glyphicon-trash"></span></a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>

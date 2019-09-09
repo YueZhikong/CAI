@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('老师主页')" ></head>
+<body>
+<div th:replace="include/teacherNavigator::html" ></div>
+<script>
+    function checkEmpty(value,text){
+
+        if(null==value || value.length==0){
+            alert(text+ "不能为空");
+            return false;
+        }
+        return true;
+    }
+    $(function(){
+        var data4Vue = {
+            uri:'teacherMessage',
+            classies:[],
+            classes:{id:"",name:""},
+            messages:[],
+            message:{},
+            result:[]
+        };
+
+        //ViewModel
+        var vue = new Vue({
+            el: '#workingArea',
+            data: data4Vue,
+            mounted:function(){ //mounted　表示这个 Vue 对象加载成功了
+                this.listClasses();
+            },
+            methods: {
+                listClasses:function(){
+                    var url = "listClasses";
+                    axios.get(url).then(function(response) {
+                        vue.classies = response.data   ;
+                    });
+                },
+                listMessage:function(id){
+                    var url =  this.uri+"/"+id;
+                    axios.get(url).then(function(response) {
+                        vue.messages = response.data   ;
+                    });
+                },
+                deleteMessage:function(id,classesID){
+                    var url =  "deleteMessage"+"/"+id;
+                    axios.delete(url).then(function(response) {
+                        if(0!=response.data.length){
+                            vue.result = response.data
+                            alert(response.data);
+                        }
+                        else{
+                            vue.listMessage(classesID);
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>
+<div id="workingArea">
+    <h1 class="label label-info" >已发送留言</h1>
+    <div class="panel panel-warning">
+        <br>
+        <br>
+        <div>
+            <table class="addTable">
+                <tr>
+                    <td>班级：</td>
+                    <td>
+                        <select v-model="classes.id" @change="listMessage(classes.id)">
+                            <option v-for="classes in classies" :value="classes.id">{{classes.name}}</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="listDataTableDiv">
+            <table class="table table-striped table-bordered table-hover  table-condensed">
+                <thead>
+                <tr class="success">
+                    <th>发送时间</th>
+                    <th>学生学号</th>
+                    <th>学生姓名</th>
+                    <th>主题</th>
+                    <th>内容</th>
+                    <th>删除</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="message in messages">
+                    <td>
+                        {{message.createtime}}
+                    </td>
+                    <td>
+                        {{message.student.stuid}}
+                    </td>
+                    <td>
+                        {{message.student.name}}
+                    </td>
+                    <td>
+                        {{message.title}}
+                    </td>
+                    <td>
+                        <a :href="'haveSent?messageID=' + message.id " target="_blank">内容</a>
+                    </td>
+                    <td>
+                        <a href="#nowhere"  @click="deleteMessage(message.id,classes.id)">删除</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

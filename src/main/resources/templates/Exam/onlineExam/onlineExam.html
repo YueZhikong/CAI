@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('学生主页')" ></head>
+<body>
+<div th:replace="include/studentNavigator::html" ></div>
+        <script>
+                function checkEmpty(value,text){
+            
+                    if(null==value || value.length==0){
+                        alert(text+ "不能为空");
+                        return false;
+                    }
+                    return true;
+                }
+                $(function(){
+                    var data4Vue = {
+                        uri:'exam',
+                        examstudent: []
+                    };
+            
+                    //ViewModel
+                    var vue = new Vue({
+                        el: '#workingArea',
+                        data: data4Vue,
+                        mounted:function(){ //mounted　表示这个 Vue 对象加载成功了
+                            this.checkExam();
+                        },
+                        methods: {
+                            checkExam:function(){
+                                var url =  this.uri;
+                                axios.get(url).then(function(response) {
+                                    vue.examstudent = response.data   ;
+                                });
+                            }
+                        }
+                    });
+                });
+            </script>
+<div id="workingArea">
+    <h4>试卷名称：</h4>
+    <p>{{examstudent.exam.name}}</p>
+    <h5>考试类型</h5>
+    <p>{{examstudent.type}}</p>
+    <h5>开始时间</h5>
+    <p>{{examstudent.createtime}}</p>
+    <h5>考试时长(分钟)</h5>
+    <p>{{examstudent.duration}}</p>
+    <div class="btn-group" role="group" aria-label="web">
+        <a :href="'studentSingleChoice?examID=' + examstudent.exam.id" target="_blank">
+            <button type="button" class="btn btn-default">单选题</button>
+        </a>
+        <a :href="'studentCompletion?examID=' + examstudent.exam.id" target="_blank">
+            <button type="button" class="btn btn-default">填空题</button>
+        </a>
+        <a :href="'studentJudgement?examID=' + examstudent.exam.id" target="_blank">
+            <button type="button" class="btn btn-default">判断题</button>
+        </a>
+        <a :href="'studentShortAnswer?examID=' + examstudent.exam.id" target="_blank">
+            <button type="button" class="btn btn-default">问答题</button>
+        </a>
+        <a :href="'studentOperation?examID=' + examstudent.exam.id" target="_blank">
+            <button type="button" class="btn btn-default">操作题</button>
+        </a>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('学生主页')"></head>
+<body>
+<div th:replace="include/studentNavigator::html"></div>
+<script>
+    //获取课程
+    //提交表单exam
+    //deletebean(exam.id)
+    //获取考试设置,发送课程id
+    function checkEmpty(value, text) {
+
+        if (null == value || value.length == 0) {
+            alert(text + "不能为空");
+            return false;
+        }
+        return true;
+    }
+
+    //获取地址栏参数的函数
+    function getUrlParms(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+
+    $(function () {
+        var examID = getUrlParms("examID");
+        var type = 1;
+        var data4Vue = {
+            uri: 'exam',
+            studentanswers: [],
+            problems: [],
+            answers: [],
+            examstudent: {},
+            time:{d:'',h:'',m:'',s:''}
+        };
+
+        //ViewModel
+        var vue = new Vue({
+            el: '#workingArea',
+            data: data4Vue,
+            mounted: function () { //mounted　表示这个 Vue 对象加载成功了
+                this.listStudentAnswer();
+            },
+            methods: {
+                listStudentAnswer: function () {
+                    var url = this.uri + "/listStudentAnswer/" + examID + "/" + type;
+                    axios.get(url).then(function (response) {
+                        vue.studentanswers = response.data;
+                    });
+
+                    var url2 = this.uri + "/listAnswer/" + examID + "/" + type;
+                    axios.get(url2).then(function (response) {
+                        vue.answers = response.data;
+                    });
+                    var url3 = this.uri + "/listExamStudent/" + examID;
+                    axios.get(url3).then(function (response) {
+                        vue.examstudent = response.data;
+                        vue.countTime();
+                    });
+                },
+                countTime: function () {
+                    if (null!= this.examstudent.deadtime){
+                        //获取当前时间
+                        var date = new Date();
+                        var now = date.getTime();
+                        //设置截止时间
+                        var endDate = new Date(this.examstudent.deadtime);
+                        var end = endDate.getTime();
+                        //时间差
+                        var leftTime = end - now;
+                        //定义变量 d,h,m,s保存倒计时的时间
+                        if (leftTime >= 0) {
+                            this.time.d = Math.floor(leftTime / 1000 / 60 / 60 / 24);
+                            this.time.h = Math.floor(leftTime / 1000 / 60 / 60 % 24);
+                            this.time.m = Math.floor(leftTime / 1000 / 60 % 60);
+                            this.time.s = Math.floor(leftTime / 1000 % 60);
+                            setTimeout(this.countTime, 1000);
+                        } else {
+                            alert("您已无法考试");
+                            window.location.href="onlineExam";
+                        }
+                    }else {
+                        this.time.d = 0;
+                        this.time.h = 0;
+                        this.time.m = 0;
+                        this.time.s = 0;
+
+                    }
+                },
+                saveStudentAnswer: function () {
+                    var checkObj = document.querySelectorAll('.addTable');
+                    // for(var i=0;i<checkObj.length;i++){
+                    //         this.problems.push(checkObj[i].id);
+                    // }
+                    for (i in this.answers) {
+                        var answer = this.answers[i];
+                        if (answer == null) {
+                            continue;
+                        }
+                        var studentanswerID = checkObj[i].id;
+                        var url = this.uri + "/saveStudentAnswer" + "/" + studentanswerID + "/" + answer;
+                        axios.post(url).then(function (response) {
+                        });
+                    }
+                }
+            }
+        });
+    });
+</script>
+<div id="workingArea">
+    <h1>倒计时</h1>
+    <div style="color:red">{{time.d}}天{{time.h}}时{{time.m}}分{{time.s}}秒</div>
+    <div>
+        <button @click="saveStudentAnswer">提交答案</button>
+        <br>
+    </div>
+    <h3>单选题</h3>
+    <div class="panel panel-warning" v-for="studentanswer,index in studentanswers">
+        <br>
+        <div>
+            <table class="addTable" :id="studentanswer.id">
+                <tr>
+                    <td width="50px">{{index+1}}、</td>
+                    <td>{{studentanswer.problem.question}}({{studentanswer.exam.score1}}分)</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><img height="100px" :src="'img/exam/'+ studentanswer.problem.id + '.jpg'"></td>
+                </tr>
+                <tr>
+                    <td>
+                        A、<input type="radio" value="A" v-model="answers[index]">
+                    </td>
+                    <td>
+                        {{studentanswer.problem.text1}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        B、<input type="radio" value="B" v-model="answers[index]">
+                    </td>
+                    <td>
+                        {{studentanswer.problem.text2}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        C、<input type="radio" value="C" v-model="answers[index]">
+                    </td>
+                    <td>
+                        {{studentanswer.problem.text3}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        D、<input type="radio" value="D" v-model="answers[index]">
+                    </td>
+                    <td>
+                        {{studentanswer.problem.text4}}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

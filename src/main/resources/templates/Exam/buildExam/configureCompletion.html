@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('老师主页')" ></head>
+<body>
+<div th:replace="include/teacherNavigator::html" ></div>
+        <style type="text/css">
+            #left {
+                width: 20%;
+                float: left;
+            }
+    
+            #middle {
+                width: 20%;
+                float: left;
+            }
+    
+            #right {
+                width: 60%;
+                float: left;
+            }
+        </style>
+    <script>
+        //获取课程
+        //提交表单exam
+        //deletebean(exam.id)
+        //获取考试设置,发送课程id
+        function checkEmpty(value, text) {
+    
+            if (null == value || value.length == 0) {
+                alert(text + "不能为空");
+                return false;
+            }
+            return true;
+        }
+    
+        //获取地址栏参数的函数
+        function getUrlParms(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) return unescape(r[2]);
+            return null;
+        }
+    
+        $(function () {
+            var examID = getUrlParms("examID");
+            var type = 2;
+            var isCheck = 0;
+            var data4Vue = {
+                uri: 'configure',
+                chapters: [],
+                chapter: {id: '', name: ''},
+                knowledgepoints: [],
+                knowledgepoint: {id: '', point: ''},
+                problems:[],
+                problem: {
+                    question: "",
+                    text1: "",
+                    text2: "",
+                    text3: "",
+                    text4: "",
+                    answer: "",
+                    description: "",
+                    difficulty: ""
+                },
+                checkData:[],
+                randoms:{random:0}
+    
+            };
+    
+            //ViewModel
+            var vue = new Vue({
+                el: '#workingArea',
+                data: data4Vue,
+                mounted: function () { //mounted　表示这个 Vue 对象加载成功了
+                    this.listChapter();
+                },
+                methods: {
+                    listChapter: function () {
+                        var url = this.uri + "/listChapter/" + examID;
+                        axios.get(url).then(function (response) {
+                            vue.chapters = response.data;
+                        });
+                    },
+                    listKnowledgepoint: function () {
+                        var chapterID = this.chapter.id;
+                        console.log(chapterID);
+                        var url = this.uri + "/listKnowledgepoint/" + chapterID;
+                        axios.get(url).then(function (response) {
+                            vue.knowledgepoints = response.data;
+                        });
+                    },
+                    listProblem:function () {
+                        var chapterID = this.chapter.id;
+                        var knowledgepointID = this.knowledgepoint.id;
+                        console.log(chapterID);
+                        console.log(knowledgepointID);
+                        var url1 = this.uri + "/listProblem/" + examID + "/" + chapterID + "/" + knowledgepointID + "/" + type;
+                        axios.get(url1).then(function (response) {
+                            vue.problems = response.data;
+                        });
+                        var url2 = this.uri + "/listChose/" + examID + "/" + chapterID + "/" + knowledgepointID + "/" + type;
+                        axios.get(url2).then(function (response) {
+                            vue.checkData = response.data;
+                        });
+
+                    },
+                    checkAll:function (){ // 点击全选事件函数
+                        var checkObj = document.querySelectorAll('.checkItem'); // 获取所有checkbox项
+                        if(isCheck ==0){ // 判定全选checkbox的勾选状态
+                            for(var i=0;i<checkObj.length;i++){
+                                if(!checkObj[i].checked){ // 将未勾选的checkbox选项push到绑定数组中
+                                    this.checkData.push(checkObj[i].value);
+                                }
+                            }
+                            isCheck = 1;
+                        }else { // 如果是去掉全选则清空checkbox选项绑定数组
+                            this.checkData = [];
+                            isCheck = 0;
+                        }
+                    },
+                    reverseSelect:function () {
+                        var checkObj = document.querySelectorAll('.checkItem'); // 获取所有checkbox项
+                        var x = [];
+                        for(var i=0;i<checkObj.length;i++){
+                            if(!checkObj[i].checked){ // 将未勾选的checkbox选项push到绑定数组中
+                                x.push(checkObj[i].value);
+                            }
+                        }
+                        this.checkData = x;
+                    },
+                    saveExamContent:function () {
+                        for (i in this.checkData) {
+                            var problemID = this.checkData[i];
+                            var url = this.uri + "/save/" + examID + "/" + problemID + "/" + type;
+                            axios.post(url).then(function(response) {
+                            });
+                        }
+                    },
+                    random:function () {
+                        var checkObj = document.querySelectorAll('.checkItem'); // 获取所有checkbox项
+                        h = checkObj.length;
+                        this.checkData = [];
+                        var random = this.randoms.random;
+                        console.log(random);
+                        if (random > checkObj.length){
+                            for (i in checkObj){
+                                this.checkData.push(checkObj[i].value);
+                            }
+                        } else {
+                            var x = this.checkData.length;
+                            while (x < random){
+
+                                i = Math.floor(Math.random()*h);
+                                var judge = true;
+                                for (a in this.checkData) {
+
+                                    if (this.checkData[a]==checkObj[i].value) {
+
+                                        judge =false;
+                                    }
+                                }
+                                if (judge == true){
+                                    this.checkData.push(checkObj[i].value);
+
+                                }
+                                x = this.checkData.length;
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+<div id="workingArea">
+    <h1>组卷</h1>
+    <div id="left">
+        <select v-model="chapter.id" size="5" @change="listKnowledgepoint">
+            <option disabled value="">请选择章</option>
+            <option value="0">全部</option>
+            <option v-for="chapter in chapters" :value="chapter.id">{{chapter.name}}}</option>
+        </select>
+    </div>
+    <div id="middle">
+        <select v-model="knowledgepoint.id" size="5" @change="listProblem">
+            <option disabled value="">请选择节</option>
+            <option value="0">全部</option>
+            <option v-for="knowledgepoint in knowledgepoints" :value="knowledgepoint.id">{{knowledgepoint.point}}</option>
+        </select>
+    </div>
+    <div id="right">
+            <button type="button" class="btn btn-primary" @click="checkAll">全选/全不选</button>
+            <button type="button" class="btn btn-primary" @click="reverseSelect">反向选择</button>
+            <button type="button" class="btn btn-primary" @click="saveExamContent">保存选择结果</button>
+            <br>
+            <input type="text" class="form-control" v-model="randoms.random" placeholder="请输入随机选取的个数" style="display:block;  width:50px">
+            <br>
+            <button type="button" class="btn btn-primary" @click="random">随机</button>
+            <button type="button" class="btn btn-primary" onClick="javascript :history.back(-1);">返回</button>
+        <div class="panel panel-warning" v-for="problem in problems">
+            <div>
+                <table class="addTable">
+                    <tr>
+                        <td>
+                            <input type="checkbox" :value="problem.id" class="checkItem"  v-model="checkData">
+                            <label>采用</label>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>知识点：</td>
+                        <td>{{problem.knowledgepoint.point}}</td>
+                    </tr>
+                    <tr>
+                        <td>出题人：</td>
+                        <td>{{problem.author}}</td>
+                    </tr>
+                    <tr>
+                        <td>题目：</td>
+                        <td><span class="text-primary">{{problem.question}}</span></td>
+                    </tr>
+                    <tr>
+                        <td>答案：</td>
+                        <td><span class="text-primary">{{problem.answer}}</span></td>
+                    </tr>
+                    <tr>
+                        <td>图片：</td>
+                        <td><img height="100px" :src="'img/exam/'+ problem.id + '.jpg'"></td>
+                    </tr>
+                    <tr>
+                        <td>说明：</td>
+                        <td><span class="text-primary">{{problem.description}}</span></td>
+                    </tr>
+                    <tr>
+                        <td>难度：</td>
+                        <td><span class="text-primary">{{problem.difficulty}}</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

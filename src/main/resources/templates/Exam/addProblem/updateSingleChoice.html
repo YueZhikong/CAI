@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('老师主页')" ></head>
+<body>
+<div th:replace="include/teacherNavigator::html" ></div>
+<style type="text/css">
+    #left {
+        width: 20%;
+        float: left;
+    }
+
+    #middle {
+        width: 20%;
+        float: left;
+    }
+
+    #right {
+        width: 60%;
+        float: left;
+    }
+</style>
+<script>
+    //获取课程
+    //提交表单exam
+    //deletebean(exam.id)
+    //获取考试设置,发送课程id
+    function checkEmpty(value, text) {
+
+        if (null == value || value.length == 0) {
+            alert(text + "不能为空");
+            return false;
+        }
+        return true;
+    }
+
+    //获取地址栏参数的函数
+    function getUrlParms(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+
+    $(function () {
+        var examID = getUrlParms("examID");
+        var type = 1;
+        var isCheck = 0;
+        var data4Vue = {
+            uri: 'configure',
+            chapters: [],
+            chapter: {id: '', name: ''},
+            knowledgepoints: [],
+            knowledgepoint: {id: '', point: ''},
+            problems:[],
+            problem: {
+                question: "",
+                text1: "",
+                text2: "",
+                text3: "",
+                text4: "",
+                answer: "",
+                description: "",
+                difficulty: ""
+            },
+            checkData:[],
+            randoms:{random:0}
+        };
+
+        //ViewModel
+        var vue = new Vue({
+            el: '#workingArea',
+            data: data4Vue,
+            mounted: function () { //mounted　表示这个 Vue 对象加载成功了
+                this.listChapter();
+            },
+            methods: {
+                listChapter: function () {
+                    var url = this.uri + "/listChapter/" + examID;
+                    axios.get(url).then(function (response) {
+                        vue.chapters = response.data;
+                    });
+                },
+                listKnowledgepoint: function () {
+                    var chapterID = this.chapter.id;
+                    console.log(chapterID);
+                    var url = this.uri + "/listKnowledgepoint/" + chapterID;
+                    axios.get(url).then(function (response) {
+                        vue.knowledgepoints = response.data;
+                    });
+                },
+                listProblem:function () {
+                    var chapterID = this.chapter.id;
+                    var knowledgepointID = this.knowledgepoint.id;
+                    console.log(chapterID);
+                    console.log(knowledgepointID);
+                    var url1 = this.uri + "/listProblem/" + examID + "/" + chapterID + "/" + knowledgepointID + "/" + type;
+                    axios.get(url1).then(function (response) {
+                        vue.problems = response.data;
+                    });
+                }
+            }
+        });
+    });
+</script>
+<div id="workingArea">
+    <h1>组卷</h1>
+    <div id="left">
+        <select v-model="chapter.id" size="5" @change="listKnowledgepoint">
+            <option disabled value="">请选择章</option>
+            <option value="0">全部</option>
+            <option v-for="chapter in chapters" :value="chapter.id">{{chapter.name}}}</option>
+        </select>
+    </div>
+    <div id="middle">
+        <select v-model="knowledgepoint.id" size="5" @change="listProblem">
+            <option disabled value="">请选择节</option>
+            <option value="0">全部</option>
+            <option v-for="knowledgepoint in knowledgepoints" :value="knowledgepoint.id">{{knowledgepoint.point}}</option>
+        </select>
+    </div>
+    <div id="right">
+        <div class="panel panel-warning" v-for="problem,index in problems">
+            <div>
+                <table class="addTable">
+                    <tr>
+                        <td>知识点：</td>
+                        <td>{{problem.knowledgepoint.point}}</td>
+                    </tr>
+                    <tr>
+                        <td>出题人：</td>
+                        <td>{{problem.author}}</td>
+                    </tr>
+                    <tr>
+                        <td>题目：</td>
+                        <td><span class="text-primary">{{problem.question}}</span></td>
+                    </tr>
+                    <tr>
+                        <td>A：</td>
+                        <td><span class="text-primary">{{problem.text1}}</span></td>
+                    </tr>
+                    <tr>
+                        <td>B：</td>
+                        <td><span class="text-primary">{{problem.text2}}</span></td>
+                    </tr>
+                    <tr>
+                        <td>C：</td>
+                        <td><span class="text-primary">{{problem.text3}}</span></td>
+                    </tr>
+                    <tr>
+                        <td>D：</td>
+                        <td><span class="text-primary">{{problem.text4}}</span></td>
+                    </tr>
+                    <tr>
+                        <td>答案：</td>
+                        <td><span class="text-primary">{{problem.answer}}</span></td>
+                    </tr>
+                    <tr>
+                        <td>图片：</td>
+                        <td><img height="100px" :src="'img/exam/'+ problem.id + '.jpg'"></td>
+                    </tr>
+                    <tr>
+                        <td>说明：</td>
+                        <td><span class="text-primary">{{problem.description}}</span></td>
+                    </tr>
+                    <tr>
+                        <td>难度：</td>
+                        <td><span class="text-primary">{{problem.difficulty}}</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

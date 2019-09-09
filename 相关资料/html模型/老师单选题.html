@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <script src="js/jquery/2.0.0/jquery.min.js"></script>
+    <link href="css/bootstrap/3.3.6/bootstrap.min.css" rel="stylesheet">
+    <script src="js/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <script src="js/vue/2.5.16/vue.min.js"></script>
+    <script src="js/axios/0.17.1/axios.min.js"></script>
+    <script src="js/moment/2.22.2/moment.js"></script> <!-- vue.js 格式化日期用的 -->
+	<style type="text/css">
+	#left{width:20%;float:left;}
+	#right{width:80%;float:left;}
+	</style>
+</head>
+<body>
+<h1>组卷</h1>
+<div id="left">
+<h4>配置单选题</h4>
+<p>全部</p>
+<p>章节名</p>
+</div>
+<div id="right">
+<h4>当前选中题目总数：x</h4>
+<p>
+	<button type="button" class="btn btn-primary">全选</button><span>
+	<button type="button" class="btn btn-primary">全不选</button><span>
+	<button type="button" class="btn btn-primary">反向选择</button><span>
+	<button type="button" class="btn btn-primary">保存选择结果</button><span>
+	<button type="button" class="btn btn-primary">返回</button><span>
+</p>
+<p>
+下表题目总数：x,已选中:y
+</p>
+
+<div class="panel panel-warning addDiv">
+        <div>学生名单</div>
+		<br>
+        <div>
+            <table class="addTable">
+				<tr>
+                    <td>
+						<input type="checkbox" id="teemo" value="teemo" v-model="checkedes">
+						<label for="teemo">采用</label>
+					</td>
+                    <td></td>
+                </tr>
+				<tr>
+                    <td>知识点：</td>
+                    <td>知识点</td>
+                </tr>
+				<tr>
+                    <td>出题人：</td>
+                    <td>admin</td>
+                </tr>
+				<tr>
+                    <td>题目：</td>
+                    <td><span class="text-primary">题目</span></td>
+                </tr>
+				<tr>
+                    <td>A：</td>
+                    <td><span class="text-primary">A</span></td>
+                </tr>
+				<tr>
+                    <td>B：</td>
+                    <td><span class="text-primary">B</span></td>
+                </tr>
+				<tr>
+                    <td>C：</td>
+                    <td><span class="text-primary">C</span></td>
+                </tr>
+				<tr>
+                    <td>D：</td>
+                    <td><span class="text-primary">D</span></td>
+                </tr>
+				<tr>
+                    <td>答案：</td>
+                    <td><span class="text-primary">A</span></td>
+                </tr>
+				<tr>
+                    <td>图片：</td>
+                    <td><span class="text-primary">图片</span></td>
+                </tr>		
+				<tr>
+                    <td>说明：</td>
+                    <td><span class="text-primary">无</span></td>
+                </tr>
+				<tr>
+                    <td>难度：</td>
+                    <td><span class="text-primary">易</span></td>
+                </tr>
+				<tr>
+                    <td>类别：</td>
+                    <td><span class="text-primary">自测题</span></td>
+                </tr>
+				<tr>
+                    <td>答对次数：</td>
+                    <td><span class="text-primary">0</span></td>
+                </tr>
+				<tr>
+                    <td>答错次数：</td>
+                    <td><span class="text-primary">0</span></td>
+                </tr>
+            </table>
+</div>	
+</div>
+</body>
+</html>
+</html>

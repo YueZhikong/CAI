@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('学生主页')" ></head>
+<body>
+<div th:replace="include/studentNavigator::html" ></div>
+<script>
+    function checkEmpty(value,text){
+
+        if(null==value || value.length==0){
+            alert(text+ "不能为空");
+            return false;
+        }
+        return true;
+    }
+    $(function(){
+        var data4Vue = {
+            uri:'achievement',
+            achievements:[]
+        };
+
+        //ViewModel
+        var vue = new Vue({
+            el: '#workingArea',
+            data: data4Vue,
+            mounted:function(){ //mounted　表示这个 Vue 对象加载成功了
+                this.listAchievement();
+            },
+            methods: {
+                listAchievement:function(){
+                    var url = "listAchievement";
+                    axios.get(url).then(function(response) {
+                        vue.achievements = response.data   ;
+                    });
+                }
+            }
+        });
+    });
+</script>
+<div id="workingArea">
+    <div class="panel panel-warning ">
+        <div>成绩</div>
+        <br>
+        <div class="listDataTableDiv">
+            <table class="table table-striped table-bordered table-hover  table-condensed">
+                <thead>
+                <tr class="success">
+                    <th>试卷名称</th>
+                    <th>单选题分数</th>
+                    <th>填空题分数</th>
+                    <th>判断题分数</th>
+                    <th>问答题分数</th>
+                    <th>操作题分数</th>
+                    <th>总分</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="achievement in achievements" >
+                    <td>
+                        {{achievement.exam.name}}
+                    </td>
+                    <td>
+                        {{achievement.score1}}
+                    </td>
+                    <td>
+                        {{achievement.score2}}
+                    </td>
+                    <td>
+                        {{achievement.score3}}
+                    </td>
+                    <td>
+                        {{achievement.score4}}
+                    </td>
+                    <td>
+                        {{achievement.score5}}
+                    </td>
+                    <td>
+                        {{achievement.total}}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

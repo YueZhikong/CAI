@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<html lang="zh">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Test</title>
+    <script src="js/jquery/2.0.0/jquery.min.js"></script>
+    <link href="css/bootstrap/3.3.6/bootstrap.min.css" rel="stylesheet">
+    <script src="js/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <script src="js/vue/2.5.16/vue.min.js"></script>
+    <script src="js/axios/0.17.1/axios.min.js"></script>
+    <script src="js/moment/2.22.2/moment.js"></script>
+</head>
+
+<body>
+    <script>
+        function checkEmpty(value, text) {
+
+            if (null == value || value.length == 0) {
+                alert(text + "不能为空");
+                return false;
+            }
+            return true;
+        }
+        $(function () {
+            var data4Vue = {
+                uri: 'studentRegister',
+                checked: [],
+                time: { d: '', h: '', m: '', s: '' },
+                exam:{time:'2020-10-22 23:23:23'}
+
+            };
+
+            //ViewModel
+            var vue = new Vue({
+                el: '#workingArea',
+                data: data4Vue,
+                mounted: function () { //mounted　表示这个 Vue 对象加载成功了
+                    this.countTime();
+                },
+                methods: {
+                    countTime: function () {
+                        //获取当前时间
+                        var date = new Date();
+                        var now = date.getTime();
+                        //设置截止时间
+                        var endDate = new Date(this.exam.time);
+                        var end = endDate.getTime();
+                        //时间差
+                        var leftTime = end - now;
+                        //定义变量 d,h,m,s保存倒计时的时间
+                        if (leftTime >= 0) {
+                            this.time.d = Math.floor(leftTime / 1000 / 60 / 60 / 24);
+                            this.time.h = Math.floor(leftTime / 1000 / 60 / 60 % 24);
+                            this.time.m = Math.floor(leftTime / 1000 / 60 % 60);
+                            this.time.s = Math.floor(leftTime / 1000 % 60);
+                            setTimeout(this.countTime, 1000);
+                        } else {
+                            alert("您已无法考试") ;
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    <div id="workingArea">
+        <div style="color:red">{{time.d}}天{{time.h}}时{{time.m}}分{{time.s}}秒</div>
+    </div>
+</body>
+
+</html>

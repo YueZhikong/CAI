@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('老师主页')" ></head>
+<body>
+<div th:replace="include/teacherNavigator::html" ></div>
+        <script>
+                //获取课程
+                //提交表单exam
+                //deletebean(exam.id)
+                //获取考试设置,发送课程id
+                function checkEmpty(value,text){
+            
+                    if(null==value || value.length==0){
+                        alert(text+ "不能为空");
+                        return false;
+                    }
+                    return true;
+                }
+                $(function(){
+                    var data4Vue = {
+                        uri:'buildExam',
+                        courses: [],
+                        course: { id:'',name:''},
+                        exams:[],
+                        exam:{id:'',course:{id:'',name:''},name:'',score1:'',score2:'',score3:'',score4:'',score5:''}
+                    };
+            
+                    //ViewModel
+                    var vue = new Vue({
+                        el: '#workingArea',
+                        data: data4Vue,
+                        mounted:function(){ //mounted　表示这个 Vue 对象加载成功了
+                            this.listCourse();
+                        },
+                        methods: {
+                            listCourse:function(){
+                                var url = "listCourse";
+                                axios.get(url).then(function(response) {
+                                    vue.courses = response.data   ;
+                                });
+                            },
+                            add:function () {
+                                var url ="addExam";
+                                this.exam.course.id = this.course.id;
+                                axios.post(url,this.exam).then(function(response) {
+                                    vue.exam = {id:'',course:{id:'',name:''},name:'',score1:'',score2:'',score3:'',score4:'',score5:''};
+                                    vue.listExam();
+                                });
+                            },
+                            deleteBean:function (examID) {
+                                var url = "deleteExam" + "/"+ examID;
+                                axios.delete(url).then(function(response) {
+                                    vue.listExam();
+                                });
+                            },
+                            listExam:function () {
+                                var courseID = this.course.id;
+                                var url =  "listExam"+"/"+ courseID;
+                                axios.get(url).then(function(response) {
+                                    vue.exams = response.data   ;
+                                });
+                            }
+                        }
+                    });
+                });
+            </script>
+<div id="workingArea">
+    <h1>组卷主页</h1>
+    <div class="panel panel-warning">
+        <br>
+        <div>
+            <table class="addTable">
+                <tr>
+                    <td>选择课程：</td>
+                    <td>
+                        <select v-model="course.id" @change="listExam">
+                            <option v-for="course in courses" :value="course.id">{{course.name}}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>试卷名称：</td>
+                    <td><input type="text" class="form-control" value="试卷名称" v-model="exam.name" style="display:block;  width:90%"></td>
+                </tr>
+                <tr>
+                    <td>单选题分值：</td>
+                    <td><input type="text" class="form-control" v-model="exam.score1" style="display:block;  width:90%"></td>
+                    <td>填空题分值：</td>
+                    <td><input type="text" class="form-control" v-model="exam.score2" style="display:block;  width:90%"></td>
+                    <td>判断题分值：</td>
+                    <td><input type="text" class="form-control" v-model="exam.score3" style="display:block;  width:90%"></td>
+                    <td>问答题分值：</td>
+                    <td><input type="text" class="form-control" v-model="exam.score4" style="display:block;  width:90%"></td>
+                    <td>操作题分值：</td>
+                    <td><input type="text" class="form-control" v-model="exam.score5" style="display:block;  width:90%"></td>
+                </tr>
+                <tr>
+
+                    <td>
+                        <a><button @click="add">添加</button></a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="listDataTableDiv">
+            <table class="table table-striped table-bordered table-hover  table-condensed">
+                <thead>
+                <tr class="success">
+                    <th>课程名称</th>
+                    <th>试卷名称</th>
+                    <th>选择题分值</th>
+                    <th>填空题分值</th>
+                    <th>判断题分值</th>
+                    <th>问答题分值</th>
+                    <th>操作题分值</th>
+                    <th>配置</th>
+                    <th>配置</th>
+                    <th>配置</th>
+                    <th>配置</th>
+                    <th>配置</th>
+                    <th>删除</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="exam in exams">
+                    <td>{{exam.course.name}}</td>
+                    <td>{{exam.name}}</td>
+                    <td>{{exam.score1}}</td>
+                    <td>{{exam.score2}}</td>
+                    <td>{{exam.score3}}</td>
+                    <td>{{exam.score4}}</td>
+                    <td>{{exam.score5}}</td>
+                    <td><a :href="'configureSingleChoice?examID='+ exam.id">单选题</a></td>
+                    <td><a :href="'configureCompletion?examID=' + exam.id ">填空题</a></td>
+                    <td><a :href="'configureJudgement?examID=' + exam.id ">判断题</a></td>
+                    <td><a :href="'configureShortAnswer?examID=' +exam.id ">问答题</a></td>
+                    <td><a :href="'configureOperation?examID=' + exam.id">操作题</a></td>
+                    <td><a><button @click="deleteBean(exam.id)">删除</button></a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('老师主页')" ></head>
+<body>
+<div th:replace="include/teacherNavigator::html" ></div>
+        <script>
+                function checkEmpty(value,text){
+            
+                    if(null==value || value.length==0){
+                        alert(text+ "不能为空");
+                        return false;
+                    }
+                    return true;
+                }
+                $(function(){
+                    var data4Vue = {
+                        uri:'teacherMessage',
+                        classes:{id:"",name:"",course:{ id: 0, name: ''},college:{ id: 0, name: ''},student:[]},
+                        classies:[],
+                        student:{id:"",stuid:"",name:""},
+                        students:[],
+                        message:{id:"",title:"",content:"",student:[],classes:[]},
+                        checkData:[],
+                        file:null
+                    };
+            
+                    //ViewModel
+                    var vue = new Vue({
+                        el: '#workingArea',
+                        data: data4Vue,
+                        mounted:function(){ //mounted　表示这个 Vue 对象加载成功了
+                            this.listClasses();
+                        },
+                        methods: {
+                            listClasses:function(){
+                                var url ="listClasses";
+                                axios.get(url).then(function(response) {
+                                    vue.classies = response.data   ;
+                                });
+                            },
+                            listStudents:function (classesID) {
+                                var url = "listStudents"+"/"+classesID;
+                                axios.get(url).then(function (response) {
+                                    vue.students = response.data;
+                                })
+                            },
+                            checkAll:function (e){ // 点击全选事件函数
+                                var checkObj = document.querySelectorAll('.checkItem'); // 获取所有checkbox项
+                                if(e.target.checked){ // 判定全选checkbox的勾选状态
+                                    for(var i=0;i<checkObj.length;i++){
+                                        if(!checkObj[i].checked){ // 将未勾选的checkbox选项push到绑定数组中
+                                            this.checkData.push(checkObj[i].value);
+                                        }
+                                    }
+                                }else { // 如果是去掉全选则清空checkbox选项绑定数组
+                                    this.checkData = [];
+                                }
+                            },
+                            teacherSendMessage:function(classesID){
+                                if(!checkEmpty(this.message.title, "主题"))
+                                    return;
+                                if(!checkEmpty(this.message.content, "内容"))
+                                    return;
+                                if(!checkEmpty(this.file, "文件"))
+                                    return;
+                                for(i in this.checkData){
+                                    var studentID = this.checkData[i];
+                                    var url = "teacherSendMessage"+"/"+ classesID + "/" + studentID;
+                                    var formData = new FormData();
+                                    formData.append("file",this.file);
+                                    formData.append("title",this.message.title);
+                                    formData.append("content",this.message.content);
+                                    axios.post(url,formData).then(function(response) {
+                                        var result = response.data;
+                                        vue.message = {title:"",content:""};
+                                        vue.file = null;
+                                        if (result.code==0){
+                                            alert("成功发送")
+                                        }
+                                    });
+                                }
+                            },
+                            getFile: function (event) {
+                                this.file = event.target.files[0];
+                            }
+            
+                        }
+                    });
+                });
+            </script>
+<div id="workingArea">
+    <h1 class="label label-info" >编写留言</h1>
+    <div class="panel panel-warning">
+        <br>
+        <div>
+            <table class="addTable">
+                <tr>
+                    <td>班级：</td>
+                    <td>
+                        <select v-model="classes.id" @change="listStudents(classes.id)">
+                            <option v-for="classes in classies" :value="classes.id">{{classes.name}}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>主题：</td>
+                    <td><input v-model.trim = "message.title" type="text" class="form-control" style="display:block; height:20px; width:300px"></td>
+                </tr>
+                <tr>
+                    <td>内容：</td>
+                    <td><textarea v-model.trim = "message.content" class="form-control" style="display:block; height:500px; width:600px"></textarea></td>
+                </tr>
+                <tr>
+                    <td>附件：</td>
+                    <td>
+                        <input type="file" name="image" @change="getFile($event)"/>
+                    </td>
+                </tr>
+                <tr class="submitTR">
+                    <td colspan="2" align="center">
+                        <a href="#nowhere" class="btn btn-success" @click="teacherSendMessage(classes.id)">发送留言</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+
+        <div class="listDataTableDiv">
+            <table class="table table-striped table-bordered table-hover  table-condensed">
+                <thead>
+                <tr class="success">
+                    <th>
+                        <input type="checkbox" @click="checkAll($event)">
+                        <label>全选</label>
+                    </th>
+                    <th>学号</th>
+                    <th>姓名</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="student in students">
+                    <td>
+                        <input type="checkbox" :id="student.id" :value="student.id" class="checkItem" v-model="checkData">
+                    </td>
+                    <td>
+                        {{student.stuid}}
+                    </td>
+                    <td>
+                        {{student.name}}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

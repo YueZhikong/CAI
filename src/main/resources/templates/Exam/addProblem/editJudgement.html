@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('管理员主页')" ></head>
+<body>
+<div th:replace="include/adminNavigator::html" ></div>
+<script>
+    function checkEmpty(value, text) {
+
+        if (null == value || value.length == 0) {
+            alert(text + "不能为空");
+            return false;
+        }
+        return true;
+    }
+
+    $(function () {
+        var data4Vue = {
+            uri: 'adminEditJudgement',
+            courses: [],
+            chapters: [],
+            knowledgepoints: [],
+            course: {id: ""},
+            chapter: {id: ""},
+            knowledgepoint: {id: ""},
+            problem: {
+                question: "",
+                text1: "",
+                text2: "",
+                text3: "",
+                text4: "",
+                answer: "",
+                description: "",
+                difficulty: ""
+            },
+            file: null
+        };
+
+        //ViewModel
+        var vue = new Vue({
+            el: '#workingArea',
+            data: data4Vue,
+            mounted: function () { //mounted　表示这个 Vue 对象加载成功了
+                this.listCourse();
+            },
+            methods: {
+                listCourse: function () {
+                    var url = "listCourse";
+                    axios.get(url).then(function (response) {
+                        vue.courses = response.data;
+                    });
+                },
+                listChapter: function (courseID) {
+                    var url = "listChapter" + "/" + courseID;
+                    axios.get(url).then(function (response) {
+                        vue.chapters = response.data;
+                    });
+                },
+                listKnowledgepoint: function (chapterID) {
+                    var url = "listKnowledgepoint" + "/" + chapterID;
+                    axios.get(url).then(function (response) {
+                        vue.knowledgepoints = response.data;
+                    });
+                },
+                send: function () {
+                    if (!checkEmpty(this.problem.question, "问题"))
+                        return;
+                    if (!checkEmpty(this.problem.answer, "回答"))
+                        return;
+                    if (!checkEmpty(this.problem.difficulty, "难度"))
+                        return;
+                    var courseID = this.course.id;
+                    var chapterID = this.chapter.id;
+                    var knowledgepointID = this.knowledgepoint.id;
+                    var url = this.uri+"/"+courseID+"/"+chapterID+"/"+knowledgepointID;
+                    var formData = new FormData();
+                    formData.append("file", this.file);
+                    formData.append("question", this.problem.question);
+                    formData.append("text1", this.problem.text1);
+                    formData.append("text2", this.problem.text2);
+                    formData.append("text3", this.problem.text3);
+                    formData.append("text4", this.problem.text4);
+                    formData.append("answer", this.problem.answer);
+                    formData.append("description", this.problem.description);
+                    formData.append("difficulty", this.problem.difficulty);
+                    axios.post(url, formData).then(function (response) {
+                        vue.problem = {
+                            question: "",
+                            text1: "",
+                            text2: "",
+                            text3: "",
+                            text4: "",
+                            answer: "",
+                            description: "",
+                            difficulty: ""
+                        };
+                        vue.file = null;
+
+                    });
+                },
+                getFile: function (event) {
+                    this.file = event.target.files[0];
+                }
+            }
+        });
+    });
+</script>
+<div id="workingArea">
+    <h4>编辑判断题</h4>
+    <table>
+        <tr>
+            <td>科目：</td>
+            <td>
+                <select v-model="course.id" @change="listChapter(course.id)">
+                    <option v-for="course in courses" :value="course.id">{{course.name}}</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>章标题：</td>
+            <td>
+                <select v-model="chapter.id" @change="listKnowledgepoint(chapter.id)">
+                    <option v-for="chapter in chapters" :value="chapter.id">{{chapter.name}}</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>节标题：</td>
+            <td>
+                <select v-model="knowledgepoint.id">
+                    <option v-for="knowledgepoint in knowledgepoints" :value="knowledgepoint.id">
+                        {{knowledgepoint.point}}
+                    </option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>题目：</td>
+            <td>
+                <textarea v-model="problem.question"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                答案：
+            </td>
+            <td>
+                <input type="radio" id="true" value="true" v-model="problem.answer">
+                <label for="true">对</label>
+                <input type="radio" id="false" value="false" v-model="problem.answer">
+                <label for="false">错</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                说明：
+            </td>
+            <td>
+                <textarea v-model="problem.description"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                难度：
+            </td>
+            <td>
+                <input type="radio" id="easy" value="1" v-model="problem.difficulty">
+                <label for="easy">易</label>
+                <input type="radio" id="medium" value="2" v-model="problem.difficulty">
+                <label for="medium">中</label>
+                <input type="radio" id="hard" value="3" v-model="problem.difficulty">
+                <label for="hard">难</label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <a href="#nowhere" @click="send" class="btn btn-success">提交</a>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

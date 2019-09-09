@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<body>
+    <style type="text/css">
+        #left {
+            width: 20%;
+            float: left;
+        }
+
+        #middle {
+            width: 20%;
+            float: left;
+        }
+
+        #middle_next {
+            width: 20%;
+            float: left;
+        }
+
+        #right {
+            width: 40%;
+            float: left;
+        }
+
+        .cardBox {
+            width: 200px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            text-align: center;
+            float: left;
+            margin-right: 10px;
+            padding: 5px;
+            padding-top: 15px;
+        }
+
+        .headerBox {
+            color: #fff;
+            padding: 10px;
+            font-size: 15px;
+            height: 60px;
+        }
+
+        .bodyBox {
+            padding: 10px;
+        }
+
+        .bodyBox p {
+            margin-left: 5px;
+        }
+    </style>
+    <div id="workingArea">
+        <h1>组卷</h1>
+        <div id="left">
+            <select v-model="chapter.id" size="5" @change="listKnowledgepoint">
+                <option disabled value="">请选择课程</option>
+                <option value="0">全部</option>
+                <option v-for="chapter in chapters" :value="chapter.id">{{chapter.name}}}</option>
+            </select>
+        </div>
+        <div id="middle">
+            <select v-model="chapter.id" size="5" @change="listKnowledgepoint">
+                <option disabled value="">请选择章</option>
+                <option value="0">全部</option>
+                <option v-for="chapter in chapters" :value="chapter.id">{{chapter.name}}}</option>
+            </select>
+        </div>
+        <div id="middle_next">
+            <select v-model="knowledgepoint.id" size="5" @change="listProblem">
+                <option disabled value="">请选择节</option>
+                <option value="0">全部</option>
+                <option v-for="knowledgepoint in knowledgepoints" :value="knowledgepoint.id">{{knowledgepoint.point}}
+                </option>
+            </select>
+        </div>
+        <div id="right">
+            <div class="cardBox" v-for="classes in classies">
+                <div class="headerBox" style="background-color: #5BC0DE;">
+                    <p>{{classes.name}}</p>
+                </div>
+                <div class="bodyBox">
+                    <p>{{classes.teacher.name}}</p>
+                    <button @click="chooseClasses(classes.id)">进入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

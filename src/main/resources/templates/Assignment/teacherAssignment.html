@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('老师主页')" ></head>
+<body>
+<div th:replace="include/teacherNavigator::html" ></div>
+        <script>
+                function checkEmpty(value, text) {
+            
+                    if (null == value || value.length == 0) {
+                        alert(text + "不能为空");
+                        return false;
+                    }
+                    return true;
+                }
+            
+                $(function () {
+                    var data4Vue = {
+                        uri: 'teacherListAssignment',
+                        assignments: [],
+                        assignment: {id: "", createtime: "", fileName: "", score: "", week: "", classes: [], student: []},
+                        classies: [],
+                        classes: {id: "", name: "", course: [], college: [], teacher: []},
+                        week:{},
+                        checkData:[],
+                        scores:[]
+                    };
+            
+                    //ViewModel
+                    var vue = new Vue({
+                        el: '#workingArea',
+                        data: data4Vue,
+                        mounted: function () { //mounted　表示这个 Vue 对象加载成功了
+                            this.listClasses();
+                        },
+                        methods: {
+                            listClasses: function () {
+                                var url = "listClasses";
+                                axios.get(url).then(function (response) {
+                                    vue.classies = response.data;
+                                });
+                            },
+                            listAssignment: function () {
+                                var classesID = this.classes.id;
+                                var week = this.week;
+                                var url = this.uri+"/"+classesID+"/"+week;
+                                axios.get(url).then(function (response) {
+                                    vue.assignments = response.data;
+                                })
+                            },
+                            checkAll: function (e) { // 点击全选事件函数
+                                var checkObj = document.querySelectorAll('.checkItem'); // 获取所有checkbox项
+                                if (e.target.checked) { // 判定全选checkbox的勾选状态
+                                    for (var i = 0; i < checkObj.length; i++) {
+                                        if (!checkObj[i].checked) { // 将未勾选的checkbox选项push到绑定数组中
+                                            this.checkData.push(checkObj[i].value);
+                                        }
+                                    }
+                                } else { // 如果是去掉全选则清空checkbox选项绑定数组
+                                    this.checkData = [];
+                                }
+                            },
+                            setscore:function(){
+                                var checkObj = document.querySelectorAll('.checkItem');
+                                var score = this.assignment.score;
+                                for (var i = 0; i < checkObj.length; i++){
+                                    if (checkObj[i].checked) { // 将未勾选的checkbox选项push到绑定数组中
+                                        var id = checkObj[i].value;
+                                        var assignmentid = "assignment" + String(id);
+                                        document.getElementById(assignmentid).value=String(score);
+                                    }
+                                }
+                            },
+                            send: function () {
+                                var checkObj = document.querySelectorAll('.checkItem');
+                                var scoreObj = document.querySelectorAll('.score');
+                                for (var i = 0; i < checkObj.length; i++) {
+                                    if (checkObj[i].checked) { // 将未勾选的checkbox选项push到绑定数组中
+                                        var assignmentID = this.checkData[i];
+                                        var score = scoreObj[i].value;
+                                        var url = "markAssignment" + "/" + assignmentID + "/" + score;
+                                        console.log(assignmentID);
+                                        console.log(score);
+                                        axios.put(url).then(function (response) {
+                                        });
+                                    }
+                                }
+                            },
+                            getFile: function (event) {
+                                this.file = event.target.files[0];
+                            }
+            
+                        }
+                    });
+                });
+            </script>
+<div id="workingArea">
+    <h1>批阅作业</h1>
+    <div>
+        选择班级：
+        <select v-model="classes.id">
+            <option v-for="classes in classies" :value="classes.id">{{classes.name}}</option>
+        </select>
+    </div>
+    <div>
+        第
+        <select v-model="week">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
+        </select>
+        周
+        <a @click="listAssignment"><button>查  看</button></a>
+    </div>
+    <div>
+        <a @click="send"><button>登记分数</button></a>
+        <a @click="setscore"><button>设置基本分数</button></a>
+        <input style="width:100px;" v-model="assignment.score" placeholder="设置基本分数" type="text">
+    </div>
+    <div class="listDataTableDiv">
+        <table class="table table-striped table-bordered table-hover  table-condensed">
+            <thead>
+            <tr class="success">
+                <th>
+                    <input type="checkbox" @click="checkAll($event)">
+                    <label>全选</label>
+                </th>
+                <th>学号</th>
+                <th>姓名</th>
+                <th>作业文件名</th>
+                <th>分数</th>
+                <th>已改分数</th>
+                <th>提交时间</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="assignment in assignments">
+                <td>
+                    <input type="checkbox" :value="assignment.id" class="checkItem" v-model="checkData">
+                </td>
+                <td>
+                    {{assignment.student.stuid}}
+                </td>
+                <td>
+                    {{assignment.student.name}}
+                </td>
+                <td>
+                    {{assignment.fileName}}
+                </td>
+                <td>
+                    <input :id="'assignment'+ assignment.id"class="score">
+                </td>
+                <td>
+                    {{assignment.score}}
+                </td>
+                <td>
+                    {{assignment.createtime}}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

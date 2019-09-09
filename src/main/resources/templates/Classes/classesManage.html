@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('管理员主页')" ></head>
+<body>
+<div th:replace="include/adminNavigator::html" ></div>
+<script>
+        //提交班级表单
+        //根据老师id获取班级信息
+        function checkEmpty(value, text) {
+    
+            if (null == value || value.length == 0) {
+                alert(text + "不能为空");
+                return false;
+            }
+            return true;
+        }
+    
+        $(function () {
+            var data4Vue = {
+                uri: 'teacherClasses',
+                colleges: [],
+                college: { id:"", name: ''},
+                dcollege: { id:"", name: ''},
+                courses:[],
+                course:{ id:"", name: ''},
+                classies: [],
+                classes:{id:"",name:"",course:{ id: 0, name: ''},college:{ id: 0, name: ''},student:[]},
+                teachers: [],
+                teacher: { id:"", name: '',password:""}
+    
+            };
+    
+            //ViewModel
+            var vue = new Vue({
+                el: '#workingArea',
+                data: data4Vue,
+                mounted: function () { //mounted　表示这个 Vue 对象加载成功了
+                    this.listCollege();
+                },
+                methods: {
+                    listClasses: function () {
+                        var url ="listClasses/"  + this.teacher.id ;
+                        axios.get(url).then(function (response) {
+                            vue.classies = response.data;
+                        });
+                    },
+                    listCourse: function () {
+                        var url ="listCourse/" + this.college.id;
+                        axios.get(url).then(function (response) {
+                            vue.courses = response.data;
+                        });
+                    },
+                    listCollege: function () {
+                        var url = "listCollege";
+                        axios.get(url).then(function (response) {
+                            vue.colleges = response.data;
+                        });
+                    },
+                    deleteClasses:function (id) {
+                        var url ="deleteClasses" + "/" + id;
+                        axios.delete(url).then(function (response) {
+                            vue.listClasses();
+                        });
+                    },
+                    listTeacher:function(){
+                        var url ="listTeacher" + "/" + this.college.id;
+                        axios.get(url).then(function(response) {
+                            vue.teachers = response.data   ;
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+<div id="workingArea">
+    <h1 class="label label-info" >班级管理</h1>
+
+    <div class="panel panel-warning addDiv">
+        <div class="panel-body">
+            <table class="addTable">
+                <tr>
+                    <td>老师所在学院</td>
+                    <td>
+                        <select v-model="college.id" @change="listTeacher">
+                            <option v-for="college in colleges" :value="college.id">{{college.name}}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>老师</td>
+                    <td>
+                        <select v-model="teacher.id" @change="listClasses">
+                            <option v-for="teacher in teachers" :value="teacher.id">{{teacher.name}}</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="listDataTableDiv">
+        <table class="table table-striped table-bordered table-hover table-condensed">
+            <thead>
+            <tr class="success">
+                <th>ID</th>
+                <th>学院</th>
+                <th>班级名</th>
+                <th>课程</th>
+                <th>删除</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="classes in classies">
+                <td>
+                    {{classes.id}}
+                </td>
+                <td>
+                    {{classes.college.name}}
+                </td>
+                <td>
+                    {{classes.name}}
+                </td>
+                <td>
+                    {{classes.course.name}}
+                </td>
+                <td>
+                    <a href="#nowhere" @click="deletebean(classes.id)"><span class="   glyphicon glyphicon-trash"></span></a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+
+</html>

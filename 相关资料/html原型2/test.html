@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>上传文件进度条</title>
+  <style>
+
+    body {
+      position: relative;
+      width: 1920px;
+      height: 984px;
+
+    }
+
+    .box {
+      position: absolute;
+      left: 50%;
+      top: 30%;
+      transform: translate(-50%, -30%);
+    }
+
+    .wrap {
+      width: 300px;
+      height: 20px;
+      box-shadow: 0 0 10px pink inset;
+      border-radius: 10px;
+      border: 2px solid #eee;
+      background: rgba(0,0,0,0.5);
+      margin-top: 20px;
+      position: relative;
+      display: none;
+
+    }
+    .children {
+      width: 0;
+      height: 20px;
+      box-shadow: 0 0 5px #eee outset;
+      border-radius: 10px;
+      background: -webkit-linear-gradient(left, #FF34B3 0%,#FF7256 50%, yellow 100%);
+
+    }
+    #percent {
+      position: absolute;
+      top: 0px;
+      left: 0;
+      margin: 0;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="box"> 
+    <input type="file" id='input'>
+
+    <div class="wrap" id='wrap'>
+      <div class="children" id='children'>
+
+      </div>
+      <p id='percent'>0</p>
+    </div>
+</div>
+
+
+
+
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+var Input = document.getElementById('input')
+var Wrap = document.getElementById('wrap')
+var Children = document.getElementById('children')
+var Percent = document.getElementById('percent')
+Input.onchange = function(event) {
+
+  console.log('event', event)
+  let file = event.target.files[0]
+
+  const formData = new FormData()
+
+  formData.append('userName', 'admin')
+  formData.append('projectId', '735136fcf95a41248cc94127f7963ea8')
+  formData.append('file', file)
+
+
+  console.log('formData', formData)
+
+  var percent = 0;
+
+ uploadPhoto(formData, function(e){
+   Wrap.style.display = 'block'
+   percent = e.loaded / e.total * 100 
+   Children.style.width = percent + '%'
+   Percent.innerHTML = Math.ceil(percent) + '%'
+   Percent.style.left = Math.ceil(percent) + '%'
+
+ }, function(res) {
+   if(res.code === 1) {
+     alert('上传成功')
+     Children.style.width = 0 + '%'
+     Wrap.style.display = 'none'
+   }
+
+
+ })
+
+}
+
+  function uploadPhoto(payload, callback1, callback2){
+    axios({
+      url: 'http://192.168.1.207:3004/hysighthome/project/735136fcf95a41248cc94127f7963ea8/attachment',
+      method: 'post',
+       headers: { 
+         Authorization: 'sdfasfsfwrfrwerrrrrrrrrrrfbdddddddddddddd',
+        'Content-Type': 'multipart/form-data'
+        },
+      onUploadProgress: function (progressEvent) { //原生获取上传进度的事件
+        if (progressEvent.lengthComputable) {
+          //属性lengthComputable主要表明总共需要完成的工作量和已经完成的工作是否可以被测量
+          //如果lengthComputable为false，就获取不到progressEvent.total和progressEvent.loaded
+          callback1(progressEvent);
+        }
+      },
+      data: payload
+    }).then(res => {
+      callback2(res.data);
+    }).then(error => {
+      console.log(error)
+    })
+  }
+  </script>
+
+</body>
+</html>

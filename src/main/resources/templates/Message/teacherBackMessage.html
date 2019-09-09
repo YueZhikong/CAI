@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('老师主页')" ></head>
+<body>
+<div th:replace="include/teacherNavigator::html" ></div>
+        <script>
+                //获取地址栏参数的函数
+            
+                function getUrlParms(name)
+                {
+                    var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+                    var r = window.location.search.substr(1).match(reg);
+                    if(r!=null)return  unescape(r[2]); return null;
+                }
+                function checkEmpty(value,text){
+            
+                    if(null==value || value.length==0){
+                        alert(text+ "不能为空");
+                        return false;
+                    }
+                    return true;
+                }
+                $(function(){
+                    var messageID = getUrlParms("messageID");
+                    var classesID = getUrlParms("classesID");
+                    var studentID = getUrlParms("studentID");
+                    var data4Vue = {
+                        uri:'teacherMessageBack',
+                        classes:{id:"",name:"",course:{ id: 0, name: ''},college:{ id: 0, name: ''},student:[]},
+                        classies:[],
+                        student:{id:"",stuid:"",name:""},
+                        students:[],
+                        message:{id:"",title:"",content:"",student:[],classes:[]}
+                    };
+            
+                    //ViewModel
+                    var vue = new Vue({
+                        el: '#workingArea',
+                        data: data4Vue,
+                        mounted:function(){ //mounted　表示这个 Vue 对象加载成功了
+                        },
+                        methods: {
+                            teacherBackMessage:function(){
+                                if(!checkEmpty(this.message.title, "主题"))
+                                    return;
+                                if(!checkEmpty(this.message.content, "内容"))
+                                    return;
+
+                                var url =  "teacherBackMessage"+"/"+messageID+"/"+classesID+"/"+studentID;
+                                var formData = new FormData();
+                                formData.append("file",this.file);
+                                formData.append("title",this.message.title);
+                                formData.append("content",this.message.content);
+                                axios.post(url,formData).then(function(response) {
+                                    var result = response.data;
+                                    vue.message = {title:"",content:""};
+                                    vue.file = null;
+                                    if (result.code==0){
+                                        alert("成功发送")
+                                    }
+                                });
+                            },
+                            getFile: function (event) {
+                                this.file = event.target.files[0];
+                            }
+                        }
+                    });
+                });
+            </script>
+<div id="workingArea">
+    <h1 class="label label-info" >回复信息</h1>
+    <div class="panel panel-warning">
+        <br>
+        <div>
+            <table class="addTable">
+                <tr>
+                    <td>主题：</td>
+                    <td><input v-model.trim = "message.title" type="text" class="form-control" style="display:block; height:20px; width:300px"></td>
+                </tr>
+                <tr>
+                    <td>内容：</td>
+                    <td><textarea v-model.trim = "message.content" class="form-control" style="display:block; height:500px; width:600px"></textarea></td>
+                </tr>
+                <tr>
+                    <td>附件：</td>
+                    <td>
+                        <input type="file" name="image" @change="getFile($event)"/>
+                    </td>
+                </tr>
+                <tr class="submitTR">
+                    <td colspan="2" align="center">
+                        <a href="#nowhere" @click="teacherBackMessage" class="btn btn-success">发送留言</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

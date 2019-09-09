@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('学院管理')" ></head>
+<body>
+<div th:replace="include/adminNavigator::html" ></div>
+<script>
+    function getUrlParms(name)
+    {
+        var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if(r!=null)return  unescape(r[2]); return null;
+    }
+    function checkEmpty(value,text){
+
+        if(null==value || value.length==0){
+            alert(text+ "不能为空");
+            return false;
+        }
+        return true;
+    }
+    $(function(){
+        var collegeID = getUrlParms("collegeID");
+        var data4Vue = {
+            uri:'collegeManage',
+            colleges: [],
+            college: { id:"", name: ''}
+        };
+
+        //ViewModel
+        var vue = new Vue({
+            el: '#workingArea',
+            data: data4Vue,
+            mounted:function(){ //mounted　表示这个 Vue 对象加载成功了
+            },
+            methods: {
+                updateCollege:function(){
+                    var url = "updateCollege/"+collegeID;
+                    axios.put(url,this.college).then(function(response){
+                        window.close();
+                    });
+                }
+            }
+        });
+    });
+</script>
+<div id="workingArea">
+    <h1 class="label label-info" >学院管理</h1>
+    <br>
+    <br>
+    <div class="panel panel-warning addDiv">
+        <div class="panel-heading">修改学院</div>
+        <div class="panel-body">
+            <table class="addTable">
+                <tr>
+                    <td>学院名称</td>
+                    <td><input v-model.trim="college.name" type="text" class="form-control"style="display:block;  width:90%"></td>
+                </tr>
+                <tr class="submitTR">
+                    <td colspan="2" align="center">
+                        <a href="#nowhere" class="btn btn-success" @click="updateCollege">提交</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>

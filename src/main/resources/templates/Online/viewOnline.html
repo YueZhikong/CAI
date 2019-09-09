@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="js/jquery/2.0.0/jquery.min.js"></script>
+    <link href="css/bootstrap/3.3.6/bootstrap.min.css" rel="stylesheet">
+    <script src="js/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <script src="js/vue/2.5.16/vue.min.js"></script>
+    <script src="js/axios/0.17.1/axios.min.js"></script>
+    <script src="js/moment/2.22.2/moment.js"></script>
+    <link href="css/back/style.css" rel="stylesheet">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/reset.css" />
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>视频</title>
+</head>
+<body>
+<script>
+    function checkEmpty(value, text) {
+
+        if (null == value || value.length == 0) {
+            alert(text + "不能为空");
+            return false;
+        }
+        return true;
+    }
+    function getUrlParms(name)
+    {
+        var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if(r!=null)return  unescape(r[2]); return null;
+    }
+    $(function () {
+        var videoID = getUrlParms("videoID");
+        var data4Vue = {
+            uri: 'Online',
+            videoID:''
+
+        };
+
+        //ViewModel
+        var vue = new Vue({
+            el: '#workingArea',
+            data: data4Vue,
+            mounted: function () { //mounted　表示这个 Vue 对象加载成功了
+                this.change(videoID);
+            },
+            methods: {
+                change:function(id){
+                    this.videoID = id;
+                }
+            }
+        });
+    });
+</script>
+<div id="workingArea">
+    <video :src="'file/video/' + videoID + '.mp4'" controls="controls" width="1280px" heigh="720px">
+        您的浏览器不支持 video 标签。
+    </video>
+</div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<script src="http://how2j.cn/study/vue.min.js"></script>
+    
+<style>
+table tr td{
+    border:1px solid gray;
+    padding:10px;
+     
+}
+table{
+    border-collapse:collapse;
+    width:800px;
+    table-layout:fixed;
+}
+tr.firstLine{
+    background-color: lightGray;
+}
+</style>
+  
+<div id="div1">
+    
+    <table align="center" >
+        <tr class="firstLine">
+            <td>视图类型</td>
+            <td>输入数据</td>
+            <td>绑定到Vue上的数值</td>
+        </tr>       
+        <tr>
+            <td>
+                单行文本
+            </td>
+            <td>
+                <input v-model="input" placeholder="输入数据">
+            </td>
+            <td>
+                <p>{{ input }}</p>   
+            </td>
+        </tr>
+        <tr>
+            <td>
+                多行文本
+            </td>
+            <td>
+                <textarea v-model="textarea" placeholder="输入数据"></textarea>
+            </td>
+            <td>
+                <p>{{ textarea }}</p>   
+            </td>
+        </tr>      
+    </table>
+  
+</div>
+     
+<script>
+   
+new Vue({
+      el: '#div1',
+      data: {
+          input:'',
+          textarea:'',
+          checked:'',
+          checkedes:[],
+          radio:'',
+          selected:'',
+          selecteds:[],
+          toggle:'',
+           
+      }
+    })
+     
+</script>

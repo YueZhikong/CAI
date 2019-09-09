@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('管理员主页')" ></head>
+<body>
+<div th:replace="include/adminNavigator::html" ></div>
+        <style type="text/css">
+            #left {
+                width: 20%;
+                float: left;
+            }
+    
+            #right {
+                width: 80%;
+                float: left;
+            }
+        </style>
+        <script>
+                function checkEmpty(value, text) {
+            
+                    if (null == value || value.length == 0) {
+                        alert(text + "不能为空");
+                        return false;
+                    }
+                    return true;
+                }
+            
+                $(function () {
+                    var data4Vue = {
+                        uri: 'knowledgepointManage',
+                        chapters: [],
+                        chapter: {id: 0, name: ""},
+                        courses: [],
+                        course: {id: "", name: ''},
+                        knowledgepoints:[],
+                        knowledgepoint:{id:'',point:""}
+                    };
+            
+                    //ViewModel
+                    var vue = new Vue({
+                        el: '#workingArea',
+                        data: data4Vue,
+                        mounted: function () { //mounted　表示这个 Vue 对象加载成功了
+                            this.listCourse();
+                        },
+                        methods: {
+                            listCourse: function () {
+                                var url = "listCourse";
+                                axios.get(url).then(function (response) {
+                                    vue.courses = response.data;
+                                });
+                            },
+                            listChapter: function (courseID) {
+                                var url = "listChapter" + "/" + courseID;
+                                axios.get(url).then(function (response) {
+                                    vue.chapters = response.data;
+                                });
+                            },
+                            listKnowledgepoint: function (chapterID) {
+                                var url = "listKnowledgepoint" + "/" + chapterID;
+                                axios.get(url).then(function (response) {
+                                    vue.knowledgepoints = response.data;
+                                });
+                            },
+                            addKnowledgepoint: function (courseID,chapterID) {
+                                var url = "addKnowledgepoint"+ "/" + courseID + "/" + chapterID;
+                                axios.post(url, this.knowledgepoint).then(function (response) {
+                                    vue.listKnowledgepoint(chapterID);
+                                })
+                            },
+                            updateKnowledgepoint: function (courseID,chapterID) {
+                                var url = "updateKnowledgepoint"+ "/" + courseID + "/" + chapterID + "/" + this.knowledgepoint.id;
+                                axios.put(url, this.knowledgepoint).then(function (response) {
+                                    vue.listKnowledgepoint(chapterID);
+                                })
+                            },
+                            deleteKnowledgepoint: function (id) {
+                                var url = "deleteKnowledgepoint" + "/" + id;
+                                var chapterID = this.chapter.id;
+                                axios.delete(url).then(function (response) {
+                                    vue.listKnowledgepoint(chapterID);
+                                });
+                            }
+            
+                        }
+                    });
+                });
+            </script>
+<div id="workingArea">
+    <h1 class="label label-info" >编辑节知识点</h1>
+    <div>
+        选择课程：
+        <select v-model="course.id" @change="listChapter(course.id)">
+            <option v-for="course in courses" :value="course.id">{{course.name}}</option>
+        </select>
+
+    </div>
+
+    <div id="left">
+        <h4>请在下表中选择章标题：</h4>
+        <select v-model="chapter.id" @change="listKnowledgepoint(chapter.id)" size="15">
+            <option v-for="chapter in chapters" :value="chapter.id">{{chapter.name}}</option>
+        </select>
+    </div>
+
+    <div id="right">
+        <div>
+            <h4>节标题：</h4>
+            <input v-model="knowledgepoint.point" placeholder="输入节标题">
+            <a @click="addKnowledgepoint(course.id,chapter.id)"><button>提   交</button></a>
+            <a @click="updateKnowledgepoint(course.id,chapter.id)"><button>修改</button></a>
+        </div>
+        <div>
+            <select v-model="knowledgepoint.id" size="15">
+                <option v-for="knowledgepoint in knowledgepoints" :value="knowledgepoint.id">
+                    {{knowledgepoint.point}}
+                </option>
+            </select>
+            <br>
+            <a @click="deleteKnowledgepoint(knowledgepoint.id)"><button>删除选中节标题</button></a>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

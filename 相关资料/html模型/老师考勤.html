@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Test</title>
+    <script src="js/jquery/2.0.0/jquery.min.js"></script>
+    <link href="css/bootstrap/3.3.6/bootstrap.min.css" rel="stylesheet">
+    <script src="js/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <script src="js/vue/2.5.16/vue.min.js"></script>
+    <script src="js/axios/0.17.1/axios.min.js"></script>
+    <script src="js/moment/2.22.2/moment.js"></script>
+</head>
+<body>
+<div class="showing"> 
+	班级：
+    <select>
+        <option>选择班级</option>
+    </select>
+</div>
+<br>
+<div class="showing"> 
+	时间
+    <select>
+        <option>第一周</option>
+    </select>
+</div>
+<p>总人数:<span>x</span>缺勤人数:<span>x</span></p>
+<div class="listDataTableDiv">
+                <table class="table table-striped table-bordered table-hover  table-condensed">
+                    <thead>
+                    <tr class="success">
+                        <th>学号</th>
+                        <th>姓名</th>
+                        <th>IP地址</th>
+						<th>时间</th>
+						<th>考勤数</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                学号
+                            </td>
+							<td>
+                                姓名
+                            </td>
+							<td>
+                                IP地址
+                            </td>
+							<td>
+                                时间
+                            </td>		
+							<td>
+                                考勤数
+                            </td>								
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+</body>
+</html>

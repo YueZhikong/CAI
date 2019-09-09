@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<body>
+<div id="workingArea">
+    <h1 class="label label-info" >老师管理</h1>
+    <br>
+    <br>
+
+    <div class="panel panel-warning addDiv">
+        <div class="panel-heading">新增网课</div>
+        <div class="panel-body">
+            <table class="addTable">
+                <tr>
+                    <td>课程</td>
+                    <td>
+                        <select>
+                            <option>{{course.name}}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>网课名称</td>
+                    <td><input v-model.trim="online.name" type="text" class="form-control"></td>
+                </tr>
+                <tr class="submitTR">
+                    <td colspan="2" align="center">
+                        <a href="#nowhere" class="btn btn-success" @click="addOnline">提交</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <br>
+    <div class="listDataTableDiv">
+        <table class="table table-striped table-bordered table-hover  table-condensed">
+            <thead>
+            <tr class="success">
+                <th>ID</th>
+                <th>名称</th>
+                <th>删除</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="teacher in teachers">
+                <td>
+                    {{online.id}}
+                </td>
+                <td>
+                    {{online.name}}
+                </td>
+                <td>
+                    <a href="#nowhere" @click="deleteOnline(online.id)"><span class="glyphicon glyphicon-trash"></span></a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+</body>
+</html>

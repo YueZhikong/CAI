@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/header::html('老师主页')" ></head>
+<body>
+<div th:replace="include/teacherNavigator::html" ></div>
+<script>
+    //获取地址栏参数的函数
+
+    function getUrlParms(name)
+    {
+        var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if(r!=null)return  unescape(r[2]); return null;
+    }
+    $(function(){
+        var mid = getUrlParms("messageID");
+        var data4Vue = {
+            uri:'teacherMessageContent',
+            message:{}
+        };
+
+        //ViewModel
+        var vue = new Vue({
+            el: '#workingArea',
+            data: data4Vue,
+            mounted:function(){ //mounted　表示这个 Vue 对象加载成功了
+                this.MessageContent(mid);
+            },
+            methods: {
+                MessageContent:function(mid){
+                    var url = "MessageContent"+"/"+mid;
+                    axios.get(url).then(function(response) {
+                        vue.message = response.data   ;
+                    });
+                }
+            }
+        });
+    });
+</script>
+<div id="workingArea">
+    <h1 class="label label-info" >信息内容</h1>
+    <div class="panel panel-warning">
+        <div>
+            <table class="addTable">
+                <tr>
+                    <td>学生学号：</td>
+                    <td>{{message.student.stuid}}</td>
+                </tr>
+                <tr>
+                    <td>学生姓名：</td>
+                    <td>{{message.student.name}}</td>
+                </tr>
+                <tr>
+                    <td>班级：</td>
+                    <td>{{message.classes.name}}</td>
+                </tr>
+                <tr>
+                    <td>主题：</td>
+                    <td><span class="text-primary">{{message.title}}</span></td>
+                </tr>
+                <tr>
+                    <td>内容：</td>
+                    <td><span class="text-primary">{{message.content}}</span></td>
+                </tr>
+                <tr>
+                    <td>发送时间：</td>
+                    <td>{{message.createtime}}</td>
+                </tr>
+                <tr>
+                    <td>文件：</td>
+                    <td><a :href="'file/message/' + message.fileName ">{{message.fileName}}</a></td>
+                </tr>
+
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
